@@ -1,7 +1,16 @@
 import express, { Request, Response } from 'express';
-import { tools } from './index.js';
+import { createTools } from './tools.js';
 
 const app = express().use(express.json());
+
+let tools: ReturnType<typeof createTools>;
+
+try {
+  tools = createTools();
+} catch (error) {
+  console.error('Failed to initialize tools:', error);
+  process.exit(1);
+}
 
 app.post('/mcp/:tool', async (req: Request, res: Response) => {
   try {

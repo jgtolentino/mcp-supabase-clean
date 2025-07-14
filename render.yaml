@@ -10,6 +10,6 @@ services:
       - key: SUPABASE_URL
         value: https://cxzllzyxwpyptfretryc.supabase.co
       - key: SUPABASE_ANON_KEY
-        sync: false  # Set in Render dashboard
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4emxsenl4d3B5cHRmcmV0cnljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzNzYxODAsImV4cCI6MjA2Nzk1MjE4MH0.b794GEIWE4ZdMAm9xQYAJ0Gx-XEn1fhJBTIIeTro_1g
       - key: SEARCH_PATH
         value: public
