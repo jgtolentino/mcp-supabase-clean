@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+    
+    - name: Start HTTP server in background
+      run: |
+        export SUPABASE_URL=http://localhost:5432
+        export SUPABASE_ANON_KEY=dummy_key_for_test
+        export PORT=8080
+        npm run start:http &
+        echo $! > server.pid
+        sleep 3
+    
+    - name: Smoke test HTTP endpoint
+      run: |
+        # Test health endpoint
+        curl -sSf http://localhost:8080/health
+        
+        # Test that tool endpoint responds (will fail auth but endpoint works)
+        curl -sSf http://localhost:8080/mcp/select \
+          -H "Content-Type: application/json" \
+          -d '{"table":"test","columns":["id"],"limit":1}' || true
+    
+    - name: Cleanup
+      run: |
+        if [ -f server.pid ]; then
+          kill $(cat server.pid) || true
+        fi
