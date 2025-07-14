@@ -1,0 +1,269 @@
+openapi: 3.0.0
+info:
+  title: MCP ChatGPT Server API
+  version: 1.0.0
+  description: PostgreSQL-backed MCP server for ChatGPT with full read/write access
+servers:
+  - url: https://your-domain.com
+    description: Production server
+  - url: http://localhost:8000
+    description: Local development
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    FileWrite:
+      type: object
+      required:
+        - filename
+        - content
+      properties:
+        filename:
+          type: string
+          description: Path relative to workspace directory
+        content:
+          type: string
+          description: File content to write
+    SQLQuery:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: PostgreSQL query to execute
+        params:
+          type: array
+          items:
+            type: string
+          description: Query parameters for prepared statements
+    EmbedDocument:
+      type: object
+      required:
+        - id
+        - content
+      properties:
+        id:
+          type: string
+          description: Unique document identifier
+        content:
+          type: string
+          description: Document content to embed
+        metadata:
+          type: object
+          description: Additional metadata
+    SearchQuery:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: string
+          description: Search query text
+        n_results:
+          type: integer
+          default: 10
+          description: Number of results to return
+paths:
+  /upload:
+    post:
+      summary: Upload a file to workspace
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  filename:
+                    type: string
+                  path:
+                    type: string
+  /write:
+    post:
+      summary: Write content to a file
+      operationId: writeFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileWrite'
+      responses:
+        '200':
+          description: File written successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  filename:
+                    type: string
+                  path:
+                    type: string
+  /read/{filename}:
+    get:
+      summary: Read a file from workspace
+      operationId: readFile
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+          description: File path relative to workspace
+      responses:
+        '200':
+          description: File content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filename:
+                    type: string
+                  content:
+                    type: string
+        '404':
+          description: File not found
+  /files:
+    get:
+      summary: List files in workspace
+      operationId: listFiles
+      parameters:
+        - name: path
+          in: query
+          schema:
+            type: string
+            default: ""
+          description: Subdirectory path
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: string
+  /sql:
+    post:
+      summary: Execute PostgreSQL query
+      operationId: executeSQL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SQLQuery'
+      responses:
+        '200':
+          description: Query executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  result:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Query error
+  /embed:
+    post:
+      summary: Embed document for vector search
+      operationId: embedDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmbedDocument'
+      responses:
+        '200':
+          description: Document embedded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  id:
+                    type: string
+  /search:
+    post:
+      summary: Search embedded documents
+      operationId: searchDocuments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchQuery'
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        content:
+                          type: string
+                        metadata:
+                          type: object
+                        distance:
+                          type: number
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: Server health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  database:
+                    type: string

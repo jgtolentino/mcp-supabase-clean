@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mcp-chatgpt-proxy": {
+      "command": "node",
+      "args": ["/Users/tbwa/mcp-chatgpt-server/claude-desktop-proxy.js"],
+      "env": {
+        "MCP_API_URL": "http://localhost:8000",
+        "MCP_AUTH_TOKEN": "your-secret-token"
+      }
+    }
+  }
+}

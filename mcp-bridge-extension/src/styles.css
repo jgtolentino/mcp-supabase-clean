@@ -1,0 +1,48 @@
+/* MCP Bridge styles */
+.mcp-status-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.mcp-status-indicator.connected {
+  background-color: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+.mcp-status-indicator:hover {
+  transform: scale(1.2);
+}
+
+/* Command hint styling */
+.mcp-command-hint {
+  position: absolute;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10001;
+  max-width: 400px;
+}
+
+.mcp-command-hint::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 20px;
+  width: 12px;
+  height: 12px;
+  background: #1a1a1a;
+  transform: rotate(45deg);
+}
