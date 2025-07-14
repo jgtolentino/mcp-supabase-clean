@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: mcp-supabase-clean
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        value: https://cxzllzyxwpyptfretryc.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false  # Set in Render dashboard
+      - key: SEARCH_PATH
+        value: public
