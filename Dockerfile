@@ -1,17 +1,16 @@
-### build ###
-FROM node:20-alpine AS build
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-### runtime ###
-FROM node:20-alpine
+FROM node:18-alpine
 WORKDIR /app
-COPY --from=build /app/package*.json ./
-RUN npm ci --omit=dev
-COPY --from=build /app/dist ./dist
-# Debug: Check environment variables first
-# CMD ["node", "debug-env.js"]
-CMD ["node", "dist/http-wrapper.js"]
+RUN apk add --no-cache dumb-init
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+EXPOSE 3000
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/index.js"]

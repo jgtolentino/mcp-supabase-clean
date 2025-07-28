@@ -1,15 +1,13 @@
 services:
   - type: web
-    name: mcp-supabase-clean
+    name: mcp-supabase-bridge
     env: docker
-    plan: free
-    region: oregon
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /health
     envVars:
       - key: SUPABASE_URL
-        value: https://cxzllzyxwpyptfretryc.supabase.co
+        sync: false
       - key: SUPABASE_ANON_KEY
-        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4emxsenl4d3B5cHRmcmV0cnljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIzNzYxODAsImV4cCI6MjA2Nzk1MjE4MH0.b794GEIWE4ZdMAm9xQYAJ0Gx-XEn1fhJBTIIeTro_1g
-      - key: SEARCH_PATH
-        value: public
+        sync: false
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true
