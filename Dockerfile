@@ -1,16 +1,7 @@
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
 FROM node:18-alpine
 WORKDIR /app
-RUN apk add --no-cache dumb-init
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
+COPY package*.json ./
+RUN npm install --production
+COPY . .
 EXPOSE 3000
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "dist/index.js"]
+CMD ["node", "src/index.js"]
