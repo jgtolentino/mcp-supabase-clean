@@ -243,3 +243,19 @@ app.listen(PORT, () => {
   console.log(`MCP Bridge running on port ${PORT}`);
   console.log(`Available operations: ${Object.keys(operations).join(', ')}`);
 });
+
+// Import Scout operations
+const scoutOperations = require('./scout-operations');
+
+// Add Scout operations to main operations object
+Object.assign(operations, scoutOperations);
+
+// Add Scout operations to capabilities list
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    version: '4.0.0',
+    capabilities: Object.keys(operations),
+    features: ['metadata-aware', 'gpt-optimized', 'scout-analytics']
+  });
+});
